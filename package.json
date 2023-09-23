@@ -1,0 +1,24 @@
+{
+  "name": "askr",
+  "version": "1.0.0",
+  "description": "Stupid Simple Microservices dispatcher",
+  "main": "src/Askr.js",
+  "scripts": {
+    "test": "vitest --dir .",
+    "test:dev": "vitest --dir . --watch"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alex-Werner/askr.git"
+  },
+  "author": "Alex Werner <@obusco>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Alex-Werner/askr/issues"
+  },
+  "homepage": "https://github.com/Alex-Werner/askr#readme",
+  "dependencies": {
+    "hermodlog": "^1.0.0"
+  }
+}
