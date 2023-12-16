@@ -8,7 +8,7 @@ import SubscriptionMessage from "../SubscriptionMessage.js";
 
 // Create a connection to the peer
 async function createConnectionToPeer(host, port, logger) {
-    console.log('createConnectionToPeer', {host}, {port});
+    // console.log('createConnectionToPeer', {host}, {port});
     const connection = {
         host,
         port,

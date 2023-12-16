@@ -50,12 +50,12 @@ class Beacon {
                         mid: mid,
                     };
                     if (callback) {
-                        console.log('Callback found', callback)
+                        // console.log('Callback found', callback)
                         const value = await callback(message, socket, this);
-                        console.log('Callback', value)
+                        // console.log('Callback', value)
                         response.value = value;
                     }
-                    console.log({response})
+                    // console.log({response})
                     socket.write(JSON.stringify(response));
                     return;
                 }
@@ -121,7 +121,7 @@ class Beacon {
     }
 
     emit(commandAction, data) {
-        console.log('Emitting', commandAction, data)
+        // console.log('Emitting', commandAction, data)
         const interestedPeers = this.peers.get(commandAction) || [];
 
         for (let peer of interestedPeers) {
@@ -133,7 +133,7 @@ class Beacon {
     }
 
     subscribe(socket, commandAction) {
-        console.log('Subscribing', commandAction)
+        // console.log('Subscribing', commandAction)
 
         const currentPeers = this.peers.get(commandAction) || [];
         if (!currentPeers.includes(socket)) {
