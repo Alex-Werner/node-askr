@@ -1,6 +1,6 @@
-import { Beacon } from './Beacon.js';
-import { Peer } from './Peer.js';
-import { PeerList } from './PeerList.js';
+import Beacon from './Beacon.js';
+import Peer from './Peer.js';
+import PeerList from './PeerList/PeerList.js';
 import Logger from 'hermodlog';
 
 function generateRandomString(length) {
@@ -22,6 +22,10 @@ class Askr {
         this.listeners = {};
     }
 
+    // Returns the path to the peer
+    getPath() {
+        return this.beacon.getPath();
+    }
     async start() {
         this.beacon.start();
 
@@ -34,6 +38,7 @@ class Askr {
         });
 
         this.beacon.on('event', (data, senderPeer) => {
+            console.log('event', data, senderPeer)
             const { commandAction, payload } = data;
             const callback = this.listeners[commandAction];
             if (callback) {
@@ -61,14 +66,14 @@ class Askr {
 
     on(commandAction, callback) {
         this.listeners[commandAction] = callback;
+        this.beacon.on(commandAction, (data, senderPeer) => {
+            return callback(data, senderPeer);
+        });
         this.beacon.emit('subscribe', { topic: commandAction });
     }
 
     emit(commandAction, data) {
-        this.beacon.emit('event', {
-            commandAction,
-            payload: data
-        });
+        this.beacon.emit(commandAction, data);
     }
 
     _handleHandshake(data, senderPeer) {
@@ -85,4 +90,4 @@ class Askr {
     }
 }
 
-export { Askr };
+export default Askr;

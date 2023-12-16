@@ -2,7 +2,7 @@
   "name": "askr",
   "version": "1.0.0",
   "description": "Stupid Simple Microservices dispatcher",
-  "main": "src/Askr.js",
+  "main": "index.js",
   "scripts": {
     "test": "vitest --dir .",
     "test:dev": "vitest --dir . --watch"
@@ -20,5 +20,8 @@
   "homepage": "https://github.com/Alex-Werner/askr#readme",
   "dependencies": {
     "hermodlog": "^1.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.4"
   }
 }

@@ -3,7 +3,7 @@
 import { createConnection } from 'net';
 import Logger from "hermodlog";
 
-export class Peer {
+export default class Peer {
     constructor(host, port, logger) {
         this.host = host;
         this.port = port;

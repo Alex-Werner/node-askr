@@ -1,115 +1,126 @@
 # askr
 Stupid Simple Microservices dispatcher
 
-## Installation
+## Description
 
-```bash
-npm i askr
-```
+Askr is a simple protocol that helps you to build a network of microservices that can communicate with each other.   
+It also allows a Client to pass along command, listen or emit message so that the microservices can react to it.
 
-## Usage
+
+## Why
+Meant to help you build distributed applications with the least amount of effort or tool (useful for prototyping and research).
+Meant with performance in mind, it will help you to build a network of microservices that can communicate with each other.
+
+## Current Status
+
+For now, it only allow a simple server / client communication, with no network mapping and auto discovery but events dispatching and command sending is working.
+
+## Features
+
+- [X] Protocol for communication and command dispatching
+- [X] Simple server / client (no network mapping and auto discovery)
+- [X] Events dispatching
+- [X] Command sending (with response)
+
+## Roadmap
+- [] Authentication
+- [] Peer list exchange and synchronization (all nodes have the full view of the network)
+- [] Map Message dispatching
+- [] Network mapping and auto discovery
+- [] Network State Sync
+
+## Usage 
+
+### Simple Server / Client (no network mapping and auto discovery)
+
+In below example, we will create a simple server and client that will communicate with each other.  
+Server can be started (it will then emit time every seconds), stopped and asked to fetch the current time.  
+Client will ask for time, then start, wait 5s and stop the server.  
+
+
+`server.js` - Simulate an microservice agent that would fetch and emit info to a system.
 
 ```js
-import { Askr } from './Askr.js';
+import {Askr} from 'askr';
 
-// Create first node on port 8800
-const node1 = new Askr();
-node1.start();
+const agentNode = new Askr({
+    name: 'agent'
+});
+agentNode.start();
 
-// Listen for 'myCommand.myAction' on node1
-node1.on('myCommand.myAction', (event) => {
-    console.log(`Node1 received event:`, event);
+function fetchTime() {
+    const event = {
+        type: 'FETCHED_TIME',
+        payload: Date.now()
+    }
+    return event;
+}
+
+let interval;
+
+function fetchAndBroadcastTime() {
+    const event = fetchTime();
+    console.log({event})
+    agentNode.emit(event.type, event.payload);
+};
+
+function start() {
+    interval = setInterval(fetchAndBroadcastTime, 1000);
+}
+
+function stop() {
+    clearInterval(interval);
+}
+
+// Assign a listener to a command "start", "stop" and "fetch"
+agentNode.on('start', (event) => {
+    start();
 });
 
-// Let's give a small delay so that node1 is ready to accept connections.
-setTimeout(() => {
-    // Create second node on port 8801
-    const node2 = new Askr();
-    node2.start();
+agentNode.on('stop', (event) => {
+    stop();
+});
 
-    // Add node1 as a peer to node2
-    node2.addPeer('localhost', 8800);
-
-    // Give another delay to let the handshake complete.
-    setTimeout(() => {
-        // Emit 'myCommand.myAction' from node2
-        const event = {
-            value: "This is a test event from Node2"
-        };
-        node2.emit('myCommand.myAction', event);
-    }, 1000);
-
-}, 1000);
+agentNode.on('fetch', async (event, peer) => {
+    return fetchTime();
+});
 ```
 
+`client.js` - Simulate a client that would listen to the agent's event and react to it (send commands).
 
-See usage examples in [usage.example.js file](./usage.example.js).
-## Askr Protocol Specification
+```js
+import { Client } from 'askr';
 
-### Overview
-The `Askr` protocol facilitates peer-to-peer communication between nodes in a network. Each node maintains its beacon and peer list. Nodes can send and listen to events, each identified by a command-action string, e.g., "command.action".
+(async () => {
+    const client = new Client({
+        url: 'ws://localhost:8800',
+    });
 
-### Components
+    await client.connect();
 
-1. **Beacon**: Manages a node's server and handles the emission of events.
-2. **Peer**: Represents a connection to a remote node, handling the reception of events and responses.
-3. **PeerList**: Manages a collection of `Peer` objects and offers utilities to update and retrieve peers.
-4. **Askr**: Acts as the primary interface for using the protocol. Orchestrates `Beacon`, `Peer`, and `PeerList` components.
+    const fetchCommand = await client.send('fetch');
+    console.log('fetchCommand', fetchCommand);
 
-### Features & Functionalities:
 
-#### 1. Askr
+    client.on('FETCHED_TIME', (data) => {
+        console.log('FETCHED_TIME', data);
+    });
 
-- **start()**: Initializes and starts the beacon to listen for incoming connections. It sets up listeners for events like handshake messages from other nodes.
 
-- **addPeer(host, port)**: Creates a new peer and adds it to the peer list. Sends a handshake to the newly added peer.
+    const sendCommand = await client.send('start');
+    console.log('sendCommand', sendCommand);
 
-- **handshake(peer)**: Sends a handshake message to the specified peer, containing information about its own network map.
 
-- **on(commandAction, callback)**: Registers a callback function to be executed when a specific `command.action` event is received.
+    // wait 5 seconds
+    await new Promise((resolve) => {
+        setTimeout(resolve, 5000);
+    });
 
-- **emit(commandAction, data)**: Emits a specified `command.action` event with the accompanying data to all peers listening for that event.
+    const stopCommand = await client.send('stop');
+    console.log('stopCommand', stopCommand);
+})();
+```
 
-#### 2. Beacon
+## Examples
 
-Used to propagate messages and events to peers.
-
-- **start()**: Initiates the server to listen for incoming connections and data.
-
-- **emitToPeer(peer, data)**: Sends data to a specific peer.
-
-#### 3. Peer
-
-- **connect()**: Initiates a connection to the specified peer. Sets up listeners to handle incoming data and manage connection events.
-
-- **send(data)**: Sends a JSON-serialized message to the connected peer.
-
-- **close()**: Closes the connection to the peer.
-
-#### 4. PeerList
-
-PeerList maintains a collection of Peer objects and their subscriptions to events.
-
-- **addPeer(peer)**: Adds a new peer to the list.
-
-- **getPeer(id)**: Retrieves a peer by its unique identifier.
-
-- **removePeer(id)**: Removes a peer by its identifier.
-
-- **getNetworkMap()**: Provides a map of all known peers in the network.
-
-### Workflow:
-
-1. An `Askr` node starts its `Beacon`, which initializes a server to listen for incoming connections.
-
-2. Another node wishing to connect will instantiate a `Peer` object for the target and initiate a connection.
-
-3. Upon establishing the connection, a handshake is executed. The connecting node sends its network map to the target node.
-
-4. Nodes can use the `on` method to set up listeners for specific events. When such an event is received, the registered callback is executed.
-
-5. Nodes use the `emit` method to broadcast events. The `Beacon` sends the event to all relevant peers who have shown interest in that specific event type.
-
-### Network Propagation:
-
-The handshake process ensures each node has a view of the overall network. When a node joins and connects to another, it shares its known peer list, and both nodes update their lists accordingly. Over time, and with more connections, nodes create a more complete map of the network.
+See the `examples` folder for more examples.

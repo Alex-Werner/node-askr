@@ -1,42 +1,62 @@
 import {createServer} from 'net';
-import os from 'os';
 import Logger from "hermodlog";
-import {Peer} from "./Peer.js";
+import Peer from "./Peer.js";
+import getHost from './utils/getHost.js';
 
-function getHost() {
-    const networkInterfaces = os.networkInterfaces();
-
-    for (let ifaceName in networkInterfaces) {
-        const iface = networkInterfaces[ifaceName];
-        for (let alias of iface) {
-            if (alias.family === 'IPv4' && !alias.internal) {
-                return alias.address;
-            }
-        }
-    }
-    return '127.0.0.1'; // default to localhost if no external IP found
-}
-
+import addPeer from './Beacon/addPeer.js';
 class Beacon {
     constructor(props = {}) {
-        this.logger = props.logger ?? new Logger().context('Beacon');
         this.server = null;
         this.peers = new Map(); // Key: commandAction, Value: Array of connected sockets (peers) interested in the commandAction.
         this.callbacks = {}; // Callbacks for handling different message types.
 
         this.host = props.host ?? getHost();
         this.port = props.port ?? 8800;
+
+        this.logger = (props.logger ?? new Logger().context('Beacon')).module(`Beacon(${this.port})`)
     }
 
     start() {
         const logger = this.logger.method('start');
         this.server = createServer(socket => {
-            socket.on('data', data => {
+            socket.on('data', async data => {
                 let message;
                 try {
                     message = JSON.parse(data.toString());
                 } catch (err) {
                     logger.error('Error parsing incoming message:', err);
+                    return;
+                }
+
+                const isCommandMessage = message && message.workspace && message.mid && message.command && message.data;
+                const isSubscriptionMessage = message && message.type && message.eventType;
+
+
+                if(isSubscriptionMessage) {
+                    const { eventType } = message;
+                    logger.log(`Received subscription message ${eventType} from ${socket.remoteAddress}:${socket.remotePort}`);
+
+                    this.subscribe(socket, eventType);
+                    return;
+                }
+
+
+                else if(isCommandMessage) {
+                    const {workspace, mid, command, data} = message;
+                    logger.log(`Received command message ${command} from ${workspace} with mid ${mid}`);
+
+                    const callback = this.callbacks[command];
+                    const response = {
+                        mid: mid,
+                    };
+                    if (callback) {
+                        console.log('Callback found', callback)
+                        const value = await callback(message, socket, this);
+                        console.log('Callback', value)
+                        response.value = value;
+                    }
+                    console.log({response})
+                    socket.write(JSON.stringify(response));
                     return;
                 }
 
@@ -49,16 +69,15 @@ class Beacon {
 
         const self = this;
         const tryListen = () => {
-            self.logger.log('Trying to listen on port', this.port)
+            let localLogger = self.logger.method('tryListen');
+            localLogger.log(`Trying to listen on port: ${this.port}`)
             this.server
                 .listen(this.port)
                 .on('listening', () => {
-                    self.logger.log('Listening on port', this.port)
-                    self.logger
-                        .module(`Beacon(${this.port})`)
-                        .method('tryListen')
-                        .listener('listening'
-                        ).log(`Beacon started on port ${this.port}`);
+                    localLogger
+                        .log(`Listening on port: ${this.port}`)
+                    localLogger
+                        .listener('listening').log(`Beacon started on port ${this.getPath()}`);
                 })
                 .on('close', () => {
                     self.logger.module(`Beacon(${this.port})`).method('tryListen').listener('close').log(`Beacon close on port ${this.port}`);
@@ -72,22 +91,22 @@ class Beacon {
                         const parsedData = JSON.parse(data.toString());
                         const {type, payload} = parsedData;
                         if (type === 'handshake') {
-                            self.logger.log('Handshake received', payload);
+                            localLogger.log('Handshake received', payload);
                         }
                     });
-                    self.logger.module(`Beacon(${this.port})`).method('tryListen').listener('connection').log(`Peer ${peer.id} connected`);
+                    localLogger.listener('connection').log(`Peer ${peer.id} connected`);
                 })
                 .on('message', (message) => {
-                    self.logger.module(`Beacon(${this.port})`).method('tryListen').listener('message').log(`Message ${message}` );
+                    localLogger.listener('message').log(`Message ${message}` );
                 })
                 .on('error', (err) => {
                     if (err.code === 'EADDRINUSE') {
-                        self.logger.log('Address in use, retrying...', this.port)
+                        localLogger.log('Address in use, retrying...', this.port)
                         this.port++;
-                        self.logger.log('New port', this.port)
+                        localLogger.log('New port', this.port)
                         return this.server.listen(this.port);
                     } else {
-                        self.logger.error('Failed to start the server:', err);
+                        localLogger.error('Failed to start the server:', err);
                     }
                 });
         }
@@ -95,11 +114,6 @@ class Beacon {
         tryListen();
     }
 
-    addPeer(host, port) {
-        const peer = new Peer(host, port);
-        peer.connect();
-        this.subscribe(peer.connection, 'handshake');
-    }
 
     on(type, callback) {
         this.logger.method('.on').log('Setting callback for type ', type)
@@ -119,6 +133,8 @@ class Beacon {
     }
 
     subscribe(socket, commandAction) {
+        console.log('Subscribing', commandAction)
+
         const currentPeers = this.peers.get(commandAction) || [];
         if (!currentPeers.includes(socket)) {
             currentPeers.push(socket);
@@ -139,6 +155,11 @@ class Beacon {
             console.error('Error sending message to peer:', err);
         }
     }
+
+    getPath() {
+        return `ws://${this.host}:${this.port}`;
+    }
 }
 
-export {Beacon};
+Beacon.prototype.addPeer = addPeer;
+export default Beacon;
