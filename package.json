@@ -1,5 +1,5 @@
 {
-  "name": "askr",
+  "name": "node-askr",
   "version": "1.0.0",
   "description": "Stupid Simple Microservices dispatcher",
   "main": "index.js",
@@ -10,14 +10,14 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Alex-Werner/askr.git"
+    "url": "git+https://github.com/Alex-Werner/node-askr.git"
   },
   "author": "Alex Werner <@obusco>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Alex-Werner/askr/issues"
+    "url": "https://github.com/Alex-Werner/node-askr/issues"
   },
-  "homepage": "https://github.com/Alex-Werner/askr#readme",
+  "homepage": "https://github.com/Alex-Werner/node-askr#readme",
   "dependencies": {
     "hermodlog": "^1.0.0"
   },

@@ -1,9 +1,12 @@
-# askr
+# node-askr
+    
+[![npm version](https://badge.fury.io/js/node-askr.svg)](https://badge.fury.io/js/node-askr)
+
 Stupid Simple Microservices dispatcher
 
 ## Description
 
-Askr is a simple protocol that helps you to build a network of microservices that can communicate with each other.   
+Node Askr is a simple protocol that helps you to build a network of microservices that can communicate with each other.   
 It also allows a Client to pass along command, listen or emit message so that the microservices can react to it.
 
 
@@ -41,7 +44,7 @@ Client will ask for time, then start, wait 5s and stop the server.
 `server.js` - Simulate an microservice agent that would fetch and emit info to a system.
 
 ```js
-import {Askr} from 'askr';
+import {Askr} from 'node-askr';
 
 const agentNode = new Askr({
     name: 'agent'
@@ -89,7 +92,7 @@ agentNode.on('fetch', async (event, peer) => {
 `client.js` - Simulate a client that would listen to the agent's event and react to it (send commands).
 
 ```js
-import { Client } from 'askr';
+import { Client } from 'node-askr';
 
 (async () => {
     const client = new Client({
