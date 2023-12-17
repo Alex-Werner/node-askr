@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Alex-Werner/node-askr#readme",
   "dependencies": {
-    "hermodlog": "^1.0.0"
+    "hermodlog": "^1.1.1"
   },
   "devDependencies": {
     "vitest": "^1.0.4"
