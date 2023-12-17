@@ -31,6 +31,13 @@ For now, it only allow a simple server / client communication, with no network m
 - [] Map Message dispatching
 - [] Network mapping and auto discovery
 - [] Network State Sync
+- [] Network dispatching (relay message to the right node via local mesh network)
+- [] raw-ify p2p communication and compression
+
+## Final Goal
+
+The final goal is that you just connect to a single point in your network, and get ability to monitor and control all your microservices from within all your authorized microservices or terminal.
+It would work within a workspace and handle hotswapping or new microservices joining the network to distribute the load and ensure your network stays connected without GB of bloatware.    
 
 ## Usage 
 
