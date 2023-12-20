@@ -1,4 +1,4 @@
-import Peer from "../../Peer.js";
+import Peer from "../../Peer/Peer.js";
 
 export default function addPeer(peer) {
     const peerType = peer.constructor.name

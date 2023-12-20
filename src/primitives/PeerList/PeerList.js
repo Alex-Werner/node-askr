@@ -1,5 +1,5 @@
 // PeerList.js
-import Peer from '../Peer.js';
+import Peer from '../Peer/Peer.js';
 import addPeer from "./methods/addPeer.js";
 import getPeers from "./methods/getPeers.js";
 import getPeer from "./methods/getPeer.js";

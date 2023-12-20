@@ -1,11 +1,15 @@
-import Askr from './src/Askr.js';
-import Peer from './src/Peer.js';
-import Client from './src/Client/Client.js';
-import Beacon from './src/Beacon.js';
-import PeerList from './src/PeerList/PeerList.js';
+import Askr from './src/primitives/Askr/Askr.js';
+import Peer from './src/primitives/Peer/Peer.js';
+import Client from './src/primitives/Client/Client.js';
+import Beacon from './src/primitives/Beacon/Beacon.js';
+import PeerList from './src/primitives/PeerList/PeerList.js';
 
-
-
-export { Askr, Peer, Client, Beacon, PeerList };
+export {
+    Askr,
+    Peer,
+    Client,
+    Beacon,
+    PeerList
+};
 
 

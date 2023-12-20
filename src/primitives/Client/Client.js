@@ -3,8 +3,8 @@
  */
 import Logger from "hermodlog";
 import {createConnection} from 'net';
-import CommandMessage from "../CommandMessage.js";
-import SubscriptionMessage from "../SubscriptionMessage.js";
+import CommandMessage from "../CommandMessage/CommandMessage.js";
+import SubscriptionMessage from "../SubscriptionMessage/SubscriptionMessage.js";
 
 // Create a connection to the peer
 async function createConnectionToPeer(host, port, logger) {

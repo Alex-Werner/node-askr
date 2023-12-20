@@ -1,14 +1,11 @@
+import toJSON from "./methods/toJSON.js";
+
 class SubscriptionMessage {
     constructor(eventType) {
         this.eventType = eventType;
     }
-
-    toJSON() {
-        return {
-            type: 'subscription',
-            eventType: this.eventType,
-        };
-    }
 }
+
+SubscriptionMessage.prototype.toJSON = toJSON;
 
 export default SubscriptionMessage;
