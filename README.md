@@ -34,6 +34,8 @@ Careful if you are using this on an open network, as the keys signature process 
 - [] Network State Sync
 - [] Network dispatching (relay message to the right node via local mesh network)
 - [] raw-ify p2p communication and compression
+- [] Hotswapping w/ state hand-off
+- [] clusterisation via workspace
 
 ## Final Goal
 
