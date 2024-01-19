@@ -7,8 +7,7 @@ Stupid Simple Microservices dispatcher
 ## Description
 
 Node Askr is a simple protocol that helps you to build a network of microservices that can communicate with each other.   
-It also allows a Client to pass along command, listen or emit message so that the microservices can react to it.
-
+It also allows an external Client to pass along command, listen or emit message so that the microservices can react to it.
 
 ## Why
 Meant to help you build distributed applications with the least amount of effort or tool (useful for prototyping and research).
@@ -24,6 +23,7 @@ For now, it only allow a simple server / client communication, with no network m
 - [X] Simple server / client (no network mapping and auto discovery)
 - [X] Events dispatching
 - [X] Command sending (with response)
+- [X] Connected State
 
 ## Roadmap
 - [] Authentication
@@ -134,3 +134,4 @@ import { Client } from 'node-askr';
 ## Examples
 
 See the `examples` folder for more examples.
+
