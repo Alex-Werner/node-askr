@@ -35,13 +35,17 @@ export default function start() {
                 const response = {
                     mid: mid,
                 };
+                if(!callback){
+                    response.error = `Command's callback for ${command} not found`;
+                    socket.write(JSON.stringify(response));
+                    return;
+                }
                 if (callback) {
                     // console.log('Callback found', callback)
                     const value = await callback(message, socket, this);
                     // console.log('Callback', value)
                     response.value = value;
                 }
-                // console.log({response})
                 socket.write(JSON.stringify(response));
                 return;
             }
@@ -50,6 +54,18 @@ export default function start() {
             if (callback) {
                 callback(message.payload, socket, this);
             }
+        });
+        socket.on('close', () => {
+            logger.log(`Socket closed ${socket.remoteAddress}:${socket.remotePort}`);
+        });
+        socket.on('error', (err) => {
+            logger.error(`Socket error ${socket.remoteAddress}:${socket.remotePort}`, err);
+        });
+        socket.on('end', () => {
+            logger.log(`Socket ended ${socket.remoteAddress}:${socket.remotePort}`);
+        });
+        socket.on('open', () => {
+            logger.log(`Socket opened ${socket.remoteAddress}:${socket.remotePort}`);
         });
     });
 
@@ -94,6 +110,9 @@ export default function start() {
                 } else {
                     localLogger.error('Failed to start the server:', err);
                 }
+            })
+            .on('timeout', () => {
+                localLogger.log('Server timeout');
             });
     }
 
