@@ -6,4 +6,5 @@ export default function addPeer(host, port) {
     this.logger.method('addPeer').log(`Adding peer ${peer.getID()}`);
     this.peerList.addPeer(peer);
     this.handshake(peer);
+    return peer;
 }
