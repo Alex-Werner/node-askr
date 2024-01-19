@@ -20,6 +20,9 @@ export default class Peer {
         this.connection = null;
         this.logger = (logger ?? new Logger()).module(`Peer(${this.id})`);;
     }
+    on(event, callback) {
+        this.connection.on(event, callback);
+    }
 }
 
 Peer.prototype.close = close;
