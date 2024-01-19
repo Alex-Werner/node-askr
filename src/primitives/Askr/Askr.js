@@ -11,8 +11,11 @@ import on from "./methods/on.js";
 import start from "./methods/start.js";
 
 class Askr {
-    constructor() {
-        this.id = 'askr-' + generateRandomString(6);
+    constructor(props = {}) {
+        let name = `askr-`;
+        if(props.name) name += `${props.name}-`;
+
+        this.id =  name + generateRandomString(6);
         this.logger = new Logger().context(this.id);
         this.beacon = new Beacon({
             logger: this.logger
