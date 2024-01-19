@@ -90,10 +90,15 @@ export default function start() {
                 const peer = new Peer(peerhost, peerport);
                 let connectPromise = peer.connect(socket);
                 peer.connection.on('data', data => {
-                    const parsedData = JSON.parse(data.toString());
-                    const {type, payload} = parsedData;
-                    if (type === 'handshake') {
-                        localLogger.log('Handshake received', payload);
+                    try {
+                        const parsedData = JSON.parse(data.toString());
+                        const {type, payload} = parsedData;
+                        if (type === 'handshake') {
+                            localLogger.log('Handshake received', payload);
+                        }
+                    } catch (err) {
+                        localLogger.error('Error parsing incoming message:', err);
+                        return;
                     }
                 });
                 localLogger.listener('connection').log(`Peer ${peer.id} connected`);
