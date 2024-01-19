@@ -16,6 +16,8 @@ class Askr {
         if(props.name) name += `${props.name}-`;
 
         this.id =  name + generateRandomString(6);
+        this.workspace = props.workspace || 'global';
+
         this.logger = new Logger().context(this.id);
         this.beacon = new Beacon({
             logger: this.logger
