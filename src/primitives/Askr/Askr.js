@@ -22,7 +22,9 @@ class Askr {
 
         this.logger = new Logger().context(this.id);
         this.beacon = new Beacon({
-            logger: this.logger
+            logger: this.logger,
+            port: props.port ?? 8800,
+            host: props.host ?? 'localhost'
         });
         this.peerList = new PeerList();
         this.listeners = {};
