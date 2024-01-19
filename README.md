@@ -16,6 +16,7 @@ Meant with performance in mind, it will help you to build a network of microserv
 ## Current Status
 
 For now, it only allow a simple server / client communication, with no network mapping and auto discovery but events dispatching and command sending is working.
+Careful if you are using this on an open network, as the keys signature process is not yet done, anyone can access your connected state currently.  
 
 ## Features
 
