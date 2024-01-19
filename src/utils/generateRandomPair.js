@@ -40,8 +40,6 @@ const generateRandomPair = async (length = 2048) => {
             }
         });
 
-        console.log(publicKey, privateKey)
-
         keys = {
             publicKey: publicKey.toString('hex'),
             privateKey: privateKey.toString('hex')

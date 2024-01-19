@@ -1,4 +1,4 @@
-import { Askr } from './index.js';
+import { Askr } from '../../index.js';
 
 
 (async () => {

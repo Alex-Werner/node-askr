@@ -25,15 +25,8 @@ export default async function start() {
            if(!validateSignedRequest(command.data.signature)){
                return {error: 'Invalid signature'};
            }
-
             const stateMap = this.connectedState.getState();
             const state = Object.fromEntries(stateMap)
-            senderPeer.write(JSON.stringify({
-                workspace: this.workspace,
-                mid: command.mid,
-                command: 'STATE_RESPONSE',
-                data: state
-            }));
             return state;
         }
     });

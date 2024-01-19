@@ -82,6 +82,7 @@ class Client {
         const request = commandMessage.toJSON({workspace: this.workspace});
         const stringifiedCommandMessage = JSON.stringify(request);
         logger.method('send').log('Client.send() stringifiedCommandMessage', stringifiedCommandMessage);
+        if(!this.connection?.connection) throw new Error('No connection');
         this.connection.connection.write(stringifiedCommandMessage);
 
         const response = await new Promise((resolve, reject) => {

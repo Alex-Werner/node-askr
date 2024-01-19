@@ -1,4 +1,4 @@
-import Client from './src/primitives/Client/Client.js';
+import Client from '../../src/primitives/Client/Client.js';
 
 (async ()=>{
     const client = new Client({
@@ -6,5 +6,7 @@ import Client from './src/primitives/Client/Client.js';
         port: 8800,
         host: 'localhost',
     });
-    client.connect();
+    await client.connect();
+    const {response} = await client.send('STATE_REQUEST', {signature: true});
+    console.log(response)
 })()
