@@ -9,8 +9,44 @@ export default async function start() {
         this._handleHandshake(data, senderPeer);
     });
 
+    function validateSignedRequest(signature){
+        // Verify the signature
+        // const { publicKey, signature, data: stateRequestData } = data;
+        // const verified = this.keys.verify(stateRequestData, signature, publicKey);
+        // if(!verified){
+        //     this.logger.method('start').log(`Received STATE_REQUEST with invalid signature from ${senderPeer.getID()}`);
+        //     return;
+        // }
+        return true;
+    }
+
+    this.beacon.on('STATE_REQUEST', (command, senderPeer) => {
+        if(command.data.signature){
+           if(!validateSignedRequest(command.data.signature)){
+               return {error: 'Invalid signature'};
+           }
+
+            const stateMap = this.connectedState.getState();
+            const state = Object.fromEntries(stateMap)
+            senderPeer.write(JSON.stringify({
+                workspace: this.workspace,
+                mid: command.mid,
+                command: 'STATE_RESPONSE',
+                data: state
+            }));
+            return state;
+        }
+    });
+
+
+    // Verify signature
+    this.beacon.on('STATE_SET', (command, senderPeer) => {
+        const { key, value } = command.data;
+        this.connectedState.set(key, value);
+        return true;
+    });
+
     this.beacon.on('event', (data, senderPeer) => {
-        // console.log('event', data, senderPeer)
         const { commandAction, payload } = data;
         const callback = this.listeners[commandAction];
         if (callback) {
